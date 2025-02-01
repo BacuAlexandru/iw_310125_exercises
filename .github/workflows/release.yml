@@ -54,6 +54,7 @@ jobs:
 
       - name: Unzip Artifact
         run: |
+          ls -la ./downloaded
           unzip ./downloaded/jar-file.zip -d ./unzipped
           echo "Unzipped files:"
           ls -la ./unzipped
