@@ -40,7 +40,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.example.MainClass</mainClass>
+                            <mainClass>bacu.alex.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
