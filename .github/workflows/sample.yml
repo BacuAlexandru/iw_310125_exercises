@@ -38,26 +38,26 @@ jobs:
           java-version: '11'
 
       - name: Build with Maven
-        run: mvn clean compile
+        run: mvn -B package --file pom.xml -DskipTests=true
 
       - name: Execute Exercise
         shell: bash
         run: |
           if [ "${{ github.event.inputs.exercise }}" == "1" ]; then
             echo "Running Exercise 1"
-            mvn exec:java -Dexec.mainClass="com.example.Main" -Dexec.args="exercise=1"
+            java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar exercise=1
           elif [ "${{ github.event.inputs.exercise }}" == "2" ]; then
             echo "Running Exercise 2"
             if [ -z "${{ github.event.inputs.series }}" ]; then
               echo "Running Exercise 2 with default series"
-               mvn exec:java -Dexec.mainClass="com.example.Main" -Dexec.args="exercise=2"
+               java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar exercise=2
               exit 1
             fi
             echo "Series provided: ${{ github.event.inputs.series }}"
-            mvn exec:java -Dexec.mainClass="com.example.Main" -Dexec.args="exercise=2 series=${{ github.event.inputs.series }}"
+            java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar exercise=2 series=${{ github.event.inputs.series }}
           elif [ "${{ github.event.inputs.exercise }}" == "all" ]; then
             echo "Running All Exercises"
-            mvn exec:java -Dexec.mainClass="com.example.Main"
+            java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar
           else
             echo "Invalid exercise value: ${{ github.event.inputs.exercise }}"
             exit 1
