@@ -29,7 +29,8 @@ public class Main {
     private static void runExerciseOne() {
         System.out.println("EXERCISE ONE");
         System.out.println("~~~BEGIN PING PONG~~~");
-        ExerciseOne.execute();
+        ExerciseOne one = new ExerciseOne();
+        one.execute();
         System.out.println("~~~END PING PONG~~~");
     }
 
