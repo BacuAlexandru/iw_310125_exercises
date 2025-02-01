@@ -52,13 +52,6 @@ jobs:
           name: jar-file
           path: ./downloaded
 
-      - name: Unzip Artifact
-        run: |
-          ls -la ./downloaded
-          unzip ./downloaded/jar-file.zip -d ./unzipped
-          echo "Unzipped files:"
-          ls -la ./unzipped
-
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
