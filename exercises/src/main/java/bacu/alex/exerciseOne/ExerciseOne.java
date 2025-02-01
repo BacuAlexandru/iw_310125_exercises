@@ -1,36 +1,67 @@
 package bacu.alex.exerciseOne;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.Semaphore;
 
 public class ExerciseOne {
+
+    // Time in milliseconds for threads to run
+    private static final int THREAD_RUN_TIME_MS = 5000;
+
+    // semaphore objects used to ensure "ping" and "pong" are alternating
+    // we set the ping one to 1 so that it's available first
+    private static final Semaphore pingSemaphore = new Semaphore(1);
+    private static final Semaphore pongSemaphore = new Semaphore(0);
+
     public static void execute() {
-        Object lock = new Object();
-        AtomicBoolean running = new AtomicBoolean(true);
+        // ping Thread
+        Runnable pingTask = new Runnable() {
+            @Override
+            public void run() {
+                long endTime = System.currentTimeMillis() + THREAD_RUN_TIME_MS;
+                while (System.currentTimeMillis() < endTime) {
+                    try {
+                        // lock the ping Semaphore for the duration of this execution
+                        pingSemaphore.acquire();
+                        // print 'ping' message
+                        System.out.println("ping");
+                        // release pong Semaphore so that pong Thread can run
+                        pongSemaphore.release();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+        };
 
-        // Create the "ping" and the "pong" threads
-        Thread pingThread = PingPongThreads.createPingPongThread(lock, running, "ping");
-        Thread pongThread = PingPongThreads.createPingPongThread(lock, running, "pong");
+        Runnable pongTask = new Runnable() {
+            @Override
+            public void run() {
+                long endTime = System.currentTimeMillis() + THREAD_RUN_TIME_MS;
+                while (System.currentTimeMillis() < endTime) {
+                    try {
+                        // lock the pong Semaphore for the duration of this execution
+                        pongSemaphore.acquire();
+                        // print 'pong' message
+                        System.out.println("pong");
+                        // release ping Semaphore so that ping Thread can run
+                        pingSemaphore.release();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+        };
 
-        // start both threads
+        // create ping and pong Threads
+        Thread pingThread = new Thread(pingTask);
+        Thread pongThread = new Thread(pongTask);
+
+        // start both Threads
         pingThread.start();
         pongThread.start();
 
-        // wait 5 seconds for the threads to print the messages
         try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        // after 5 seconds signal the threads to stop
-        running.set(false);
-
-        // notify all threads
-        synchronized (lock) {
-            lock.notifyAll();
-        }
-
-        // wait for threads to finish execution to avoid any potential issues
-        try {
+            // ensure the main Thread waits for ping & pong Threads to finish
             pingThread.join();
             pongThread.join();
         } catch (InterruptedException e) {

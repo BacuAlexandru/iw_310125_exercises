@@ -1,59 +1,53 @@
 package bacu.alex.exerciseOne;
 
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static junit.framework.Assert.*;
 
 class ExerciseOneTest {
 
-    @Test
-    void testThreadCreation() {
-        Object lock = new Object();
-        AtomicBoolean running = new AtomicBoolean(true);
+    private String pingPong() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(baos);
+        System.setOut(printStream);
 
-        Thread thread = PingPongThreads.createPingPongThread(lock, running, "test");
-        assertNotNull(thread);
-        assertFalse(thread.isAlive());
+        ExerciseOne.execute();
+
+        String result = baos.toString();
+
+        System.setOut(System.out);
+
+        return result;
     }
 
     @RepeatedTest(5)
-    void testPingPongExecution() throws InterruptedException {
+    void testPingPongStartsWithPing() {
+        String result = pingPong();
+
+        assertTrue(result.startsWith("ping"));
+
+    }
+
+    @RepeatedTest(5)
+    void testPingPongAlternation() {
+        String result = pingPong();
         String lineSeparator = System.lineSeparator();
-        Object lock = new Object();
-        AtomicBoolean running = new AtomicBoolean(true);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
 
-        Thread pingThread = PingPongThreads.createPingPongThread(lock, running, "ping");
-        Thread pongThread = PingPongThreads.createPingPongThread(lock, running, "pong");
+        assertTrue("Always have alternations between 'ping' and 'pong'",
+                result.contains("ping" + lineSeparator + "pong") || result.contains("pong" + lineSeparator + "ping"));
 
-        pingThread.start();
-        pongThread.start();
+    }
 
-        Thread.sleep(5000);
-        running.set(false);
+    @RepeatedTest(5)
+    void testPingPongNoDuplicate() {
+        String result = pingPong();
+        String lineSeparator = System.lineSeparator();
 
-        synchronized (lock) {
-            lock.notifyAll();
-        }
-
-        pingThread.join();
-        pongThread.join();
-        System.setOut(System.out);
-
-        String output = outputStream.toString();
-
-        // verify that output contains alternations between "ping" and "pong"
-        assertTrue("Always have alternations between 'ping' and 'pong'", output.contains("ping" + lineSeparator + "pong") || output.contains("pong" + lineSeparator + "ping"));
-
-        assertFalse("Never have 'ping' or 'pong' one after another", output.contains("ping" + lineSeparator + "ping") || output.contains("pong" + lineSeparator + "pong")); // Ensuring alternation
-
-        assertTrue("Output always starts with 'ping'", output.startsWith("ping"));
+        assertFalse("Never have 'ping' or 'pong' one after another",
+                result.contains("ping" + lineSeparator + "ping") || result.contains("pong" + lineSeparator + "pong"));
 
     }
 
