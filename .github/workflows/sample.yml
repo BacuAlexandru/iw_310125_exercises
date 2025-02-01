@@ -45,20 +45,26 @@ jobs:
         run: |
           if [ "${{ github.event.inputs.exercise }}" == "1" ]; then
             echo "Running Exercise 1"
-            java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar exercise=1
+            java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar exercise=1 > output.txt
           elif [ "${{ github.event.inputs.exercise }}" == "2" ]; then
             echo "Running Exercise 2"
             if [ -z "${{ github.event.inputs.series }}" ]; then
               echo "Running Exercise 2 with default series"
-               java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar exercise=2
+               java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar exercise=2 > output.txt
               exit 1
             fi
             echo "Series provided: ${{ github.event.inputs.series }}"
-            java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar exercise=2 series=${{ github.event.inputs.series }}
+            java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar exercise=2 series=${{ github.event.inputs.series }} > output.txt
           elif [ "${{ github.event.inputs.exercise }}" == "all" ]; then
             echo "Running All Exercises"
-            java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar
+            java -jar target/exercises-1.0-SNAPSHOT-jar-with-dependencies.jar > output.txt
           else
             echo "Invalid exercise value: ${{ github.event.inputs.exercise }}"
             exit 1
           fi
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: output.txt
+          path: exercises/output.txt
