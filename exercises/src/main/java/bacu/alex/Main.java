@@ -6,6 +6,15 @@ import bacu.alex.exerciseTwo.Solution;
 import java.util.*;
 
 public class Main {
+    /**
+     * Based on the arguments provided it has different behaviours.
+     * No arguments provided then run exercise 1 and exercise 2 with default arrays from interview.
+     * If "exercise=1" is provided run just exercise 1.
+     * If "exercise=2" is provided run just exercise 2 with the default array from the interview.
+     * If "exercise=2" and "series=<comma_separated_integers>" run exercise 2 for the provided series.
+     *
+     * @param args Arguments that can be provided by the user to run the exercises.
+     */
     public static void main(String[] args) {
 
         // if not arguments are passed by default run both exercise

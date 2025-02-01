@@ -66,6 +66,9 @@ For implementing the solutions I've chosen Java, as it is language I have the mo
 # Clone repository
 git clone https://github.com/BacuAlexandru/iw_310125_exercises.git
 
+# Navigate to Maven directory
+cd .\iw_310125_exercises\exercises\
+
 # Package with Maven
 mvn clean package
 ```
