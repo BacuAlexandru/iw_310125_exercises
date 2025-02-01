@@ -1,0 +1,64 @@
+name: Sample exercise
+
+on:
+  workflow_dispatch:
+    inputs:
+      exercise:
+        description: 'Select an exercise'
+        required: true
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - 'all'
+        default: '1'
+      series:
+        description: 'Enter an integer array (comma separated) - used only if selected exercise is "2"'
+        required: false
+        default: ''
+
+jobs:
+  run-exercise:
+    name: Run Java Exercise
+
+    defaults:
+      run:
+        working-directory: ./exercises
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Build with Maven
+        run: mvn clean compile
+
+      - name: Execute Exercise
+        shell: bash
+        run: |
+          if [ "${{ github.event.inputs.exercise }}" == "1" ]; then
+            echo "Running Exercise 1"
+            mvn exec:java -Dexec.mainClass="com.example.Main" -Dexec.args="exercise=1"
+          elif [ "${{ github.event.inputs.exercise }}" == "2" ]; then
+            echo "Running Exercise 2"
+            if [ -z "${{ github.event.inputs.series }}" ]; then
+              echo "Running Exercise 2 with default series"
+               mvn exec:java -Dexec.mainClass="com.example.Main" -Dexec.args="exercise=2"
+              exit 1
+            fi
+            echo "Series provided: ${{ github.event.inputs.series }}"
+            mvn exec:java -Dexec.mainClass="com.example.Main" -Dexec.args="exercise=2 series=${{ github.event.inputs.series }}"
+          elif [ "${{ github.event.inputs.exercise }}" == "all" ]; then
+            echo "Running All Exercises"
+            mvn exec:java -Dexec.mainClass="com.example.Main"
+          else
+            echo "Invalid exercise value: ${{ github.event.inputs.exercise }}"
+            exit 1
+          fi

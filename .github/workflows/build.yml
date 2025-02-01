@@ -22,6 +22,8 @@ permissions:
 
 jobs:
   build:
+    name: Build and Test
+
     defaults:
       run:
         working-directory: ./exercises
